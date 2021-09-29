@@ -90,12 +90,49 @@ impl FromStr for TimingPoint {
 
         let timestamp = parts[0].parse::<f64>()?;
         let mpb = parts[1].parse::<f64>()?;
-        let meter = parts.get(2).unwrap_or(&"4").parse::<u32>()?;
-        let sample_set = parts.get(3).unwrap_or(&"0").parse::<i32>()?;
-        let sample_index = parts.get(4).unwrap_or(&"0").parse::<u32>()?;
-        let volume = parts.get(5).unwrap_or(&"100").parse::<u16>()?;
-        let inherited = parts.get(6).unwrap_or(&"1").parse::<i32>()? == 0;
-        let kiai = parts.get(7).unwrap_or(&"0").parse::<i32>()? > 0;
+
+        let mut meter = 4;
+        if let Some(new_meter) = parts.get(2) {
+            if !new_meter.is_empty() {
+                meter = new_meter.parse::<u32>()?;
+            }
+        }
+
+        let mut sample_set = 0;
+        if let Some(new_sample_set) = parts.get(3) {
+            if !new_sample_set.is_empty() {
+                sample_set = new_sample_set.parse::<i32>()?;
+            }
+        }
+
+        let mut sample_index = 0;
+        if let Some(new_sample_index) = parts.get(4) {
+            if !new_sample_index.is_empty() {
+                sample_index = new_sample_index.parse::<u32>()?;
+            }
+        }
+
+        // TODO: is the default supposed to be 0..?
+        let mut volume = 0;
+        if let Some(new_volume) = parts.get(5) {
+            if !new_volume.is_empty() {
+                volume = new_volume.parse::<u16>()?;
+            }
+        }
+
+        let mut inherited = false;
+        if let Some(new_inherited) = parts.get(6) {
+            if !new_inherited.is_empty() {
+                inherited = new_inherited.parse::<i32>()? == 0;
+            }
+        }
+
+        let mut kiai = 4;
+        if let Some(new_kiai) = parts.get(7) {
+            if !new_kiai.is_empty() {
+                kiai = new_kiai.parse::<i32>()?;
+            }
+        }
 
         // calculate bpm from mpb
         let _ = 60_000.0 / mpb;

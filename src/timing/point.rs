@@ -91,7 +91,7 @@ impl FromStr for TimingPoint {
         let timestamp = parts[0].parse::<i32>()?;
         let mpb = parts[1].parse::<f64>()?;
         let meter = parts.get(2).unwrap_or(&"4").parse::<u32>()?;
-        let sample_set = parts.get(3).unwrap_or(&"").parse::<i32>()?;
+        let sample_set = parts.get(3).unwrap_or(&"0").parse::<i32>()?;
         let sample_index = parts.get(4).unwrap_or(&"0").parse::<u32>()?;
         let volume = parts.get(5).unwrap_or(&"100").parse::<u16>()?;
         let inherited = parts.get(6).unwrap_or(&"1").parse::<i32>()? == 0;

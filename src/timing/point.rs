@@ -88,7 +88,7 @@ impl FromStr for TimingPoint {
     fn from_str(input: &str) -> Result<TimingPoint, Self::Err> {
         let parts = input.split(',').collect::<Vec<_>>();
 
-        let timestamp = parts[0].parse::<i32>()?;
+        let timestamp = parts[0].parse::<f64>()?;
         let mpb = parts[1].parse::<f64>()?;
         let meter = parts.get(2).unwrap_or(&"4").parse::<u32>()?;
         let sample_set = parts.get(3).unwrap_or(&"0").parse::<i32>()?;
@@ -99,7 +99,7 @@ impl FromStr for TimingPoint {
 
         // calculate bpm from mpb
         let _ = 60_000.0 / mpb;
-        let time = Millis(timestamp);
+        let time = Millis(timestamp.round() as i32);
 
         let timing_point = TimingPoint {
             kind: if inherited {

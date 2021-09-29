@@ -61,7 +61,7 @@ pub struct SampleInfo {
 
     /// TODO: additional field
     /// (does this even have any effect lol)
-    pub filename: String,
+    pub filename: Option<String>,
 }
 
 impl Default for SampleInfo {
@@ -71,7 +71,7 @@ impl Default for SampleInfo {
             addition_set: SampleSet::None,
             custom_index: 0,
             sample_volume: 0,
-            filename: "".to_owned(),
+            filename: None,
         }
     }
 }
@@ -80,23 +80,26 @@ impl FromStr for SampleInfo {
     type Err = ParseError;
 
     fn from_str(line: &str) -> Result<SampleInfo, Self::Err> {
+        let mut sample = SampleInfo::default();
         let extra_parts = line.split(':').collect::<Vec<_>>();
+
         let sample_set = extra_parts[0].parse::<u32>()?;
+        sample.sample_set = SampleSet::from_u32(sample_set)
+            .ok_or(ParseError::InvalidSampleSet(sample_set))?;
+
         let addition_set = extra_parts[1].parse::<u32>()?;
-        let custom_index = extra_parts[2].parse::<i32>()?;
-        let sample_volume = extra_parts[3].parse::<i32>()?;
-        let filename = extra_parts[4].to_owned();
+        sample.addition_set = SampleSet::from_u32(addition_set)
+            .ok_or(ParseError::InvalidSampleSet(addition_set))?;
 
-        Ok(SampleInfo {
-            addition_set: SampleSet::from_u32(addition_set)
-                .ok_or(ParseError::InvalidSampleSet(addition_set))?,
-            sample_set: SampleSet::from_u32(sample_set)
-                .ok_or(ParseError::InvalidSampleSet(sample_set))?,
+        if let Some(custom_index) = extra_parts.get(2) {
+            sample.custom_index = custom_index.parse::<i32>()?;
+        }
+        if let Some(sample_volume) = extra_parts.get(3) {
+            sample.sample_volume = sample_volume.parse::<i32>()?;
+        }
+        sample.filename = extra_parts.get(4).copied().map(str::to_string);
 
-            custom_index,
-            sample_volume,
-            filename,
-        })
+        Ok(sample)
     }
 }
 
@@ -104,7 +107,7 @@ impl fmt::Display for SampleInfo {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
             f,
-            "{}:{}:{}:{}:{}",
+            "{}:{}:{}:{}:{:?}",
             self.sample_set as u32,
             self.addition_set as u32,
             self.custom_index,

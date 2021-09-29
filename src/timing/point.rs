@@ -127,10 +127,10 @@ impl FromStr for TimingPoint {
             }
         }
 
-        let mut kiai = 4;
+        let mut kiai = false;
         if let Some(new_kiai) = parts.get(7) {
             if !new_kiai.is_empty() {
-                kiai = new_kiai.parse::<i32>()?;
+                kiai = new_kiai.parse::<i32>()? > 0;
             }
         }
 

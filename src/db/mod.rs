@@ -279,7 +279,7 @@ impl DbBeatmap {
             audio_file_name: reader.read_uleb128_string()?,
             hash: reader.read_uleb128_string()?,
             beatmap_file_name: reader.read_uleb128_string()?,
-            ranked_status: num::FromPrimitive::from_u8(reader.read_u8()?).unwrap(),
+            ranked_status: num::FromPrimitive::from_i8(reader.read_i8()?).unwrap(),
             hitcircle_count: reader.read_u16::<LittleEndian>()?,
             slider_count: reader.read_u16::<LittleEndian>()?,
             spinner_count: reader.read_u16::<LittleEndian>()?,

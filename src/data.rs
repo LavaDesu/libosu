@@ -236,14 +236,14 @@ impl BitOr for UserPermission {
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[allow(missing_docs)]
 pub enum RankedStatus {
-    Unknown,
-    Unsubmitted,
-    Unranked,
-    Unused,
-    Ranked,
-    Approved,
-    Qualified,
-    Loved,
+    Unknown = -3,
+    Unsubmitted = -2,
+    Unranked = -1,
+    Unused = 0,
+    Ranked = 1,
+    Approved = 2,
+    Qualified = 3,
+    Loved = 4,
 }
 
 /// Rank grades

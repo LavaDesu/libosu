@@ -5,7 +5,7 @@ use std::str::FromStr;
 use num::FromPrimitive;
 use regex::Regex;
 
-use crate::data::{GridSize, Mode};
+use crate::data::Mode;
 use crate::errors::ParseError;
 use crate::events::Event;
 use crate::hitobject::HitObject;
@@ -243,16 +243,7 @@ impl Beatmap {
                             }
                             // "GridSize" => kvalue!(captures[beatmap.grid_size]: parse(u8)),
                             "GridSize" => {
-                                beatmap.grid_size = {
-                                    let grid_size =
-                                        kvalue!(line_no, captures[beatmap.grid_size]=> parse(u8));
-                                    GridSize::from_u8(grid_size)
-                                        .ok_or(ParseError::InvalidGridSize(grid_size))
-                                        .map_err(|err| BeatmapParseError {
-                                            line: line_no,
-                                            inner: err,
-                                        })?
-                                }
+                                kvalue!(line_no, captures[beatmap.grid_size]: parse(u32));
                             }
                             "TimelineZoom" => {
                                 kvalue!(line_no, captures[beatmap.timeline_zoom]: parse(f64))
@@ -388,7 +379,7 @@ impl fmt::Display for Beatmap {
         writeln!(f)?;
         writeln!(f, "DistanceSpacing: {}", self.distance_spacing)?;
         writeln!(f, "BeatDivisor: {}", self.beat_divisor)?;
-        writeln!(f, "GridSize: {}", self.grid_size as u8)?;
+        writeln!(f, "GridSize: {}", self.grid_size as u32)?;
         writeln!(f, "TimelineZoom: {}", self.timeline_zoom)?;
         writeln!(f)?;
 

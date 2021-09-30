@@ -4,7 +4,7 @@ mod format;
 pub mod pp_calc;
 
 use crate::color::Color;
-use crate::data::{GridSize, Mode};
+use crate::data::Mode;
 use crate::events::Event;
 use crate::hitobject::{HitObject, HitObjectKind};
 use crate::hitsounds::SampleSet;
@@ -140,7 +140,7 @@ pub struct Beatmap {
     pub beat_divisor: u8,
 
     /// The last setting used for grid size
-    pub grid_size: GridSize,
+    pub grid_size: u32,
 
     /// The last setting used for timeline zoom
     pub timeline_zoom: f64,
@@ -208,7 +208,7 @@ impl Default for Beatmap {
             bookmarks: Vec::new(),
             distance_spacing: 0.0,
             beat_divisor: 1,
-            grid_size: GridSize::Tiny,
+            grid_size: 4,
             timeline_zoom: 0.0,
 
             title: String::new(),

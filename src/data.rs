@@ -23,23 +23,6 @@ pub enum Mode {
     Mania = 3,
 }
 
-/// Last saved grid size for editor
-#[derive(Debug, Copy, Clone, PartialEq, Eq, FromPrimitive)]
-#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-pub enum GridSize {
-    /// Tiny grid size (4 osu!px)
-    Tiny = 4,
-
-    /// Small grid size (8 osu!px)
-    Small = 8,
-
-    /// Medium grid size (16 osu!px)
-    Medium = 16,
-
-    /// Large grid size (32 osu!px)
-    Large = 32,
-}
-
 bitflags! {
     /// Mod listing with their respective bitwise representation.
     ///

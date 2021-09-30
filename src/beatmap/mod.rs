@@ -124,6 +124,9 @@ pub struct Beatmap {
     /// Whether or not to show black borders during breaks.
     pub letterbox_in_breaks: bool,
 
+    /// Whether the beatmap has an epilepsy warning
+    pub epilepsy_warning: bool,
+
     /// TODO: unknown field
     pub widescreen_storyboard: bool,
 
@@ -200,6 +203,7 @@ impl Default for Beatmap {
             sample_set: SampleSet::None,
             stack_leniency: 0.7,
             mode: Mode::Osu,
+            epilepsy_warning: false,
             letterbox_in_breaks: false,
             widescreen_storyboard: false,
 

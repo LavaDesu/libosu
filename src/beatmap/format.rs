@@ -208,6 +208,9 @@ impl Beatmap {
                             "LetterBoxInBreaks" => {
                                 kvalue!(line_no, captures[beatmap.letterbox_in_breaks]: parse(bool))
                             }
+                            "EpilepsyWarning" => {
+                                kvalue!(line_no, captures[beatmap.epilepsy_warning]: parse(bool))
+                            }
                             "WidescreenStoryboard" => {
                                 kvalue!(
                                     line_no,

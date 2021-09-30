@@ -85,11 +85,11 @@ impl FromStr for SampleInfo {
 
         let sample_set = extra_parts[0].parse::<u32>()?;
         sample.sample_set = SampleSet::from_u32(sample_set)
-            .ok_or(ParseError::InvalidSampleSet(sample_set))?;
+            .unwrap_or(SampleSet::None);
 
         let addition_set = extra_parts[1].parse::<u32>()?;
         sample.addition_set = SampleSet::from_u32(addition_set)
-            .ok_or(ParseError::InvalidSampleSet(addition_set))?;
+            .unwrap_or(SampleSet::None);
 
         if let Some(custom_index) = extra_parts.get(2) {
             sample.custom_index = custom_index.parse::<i32>()?;

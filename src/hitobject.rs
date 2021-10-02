@@ -214,7 +214,7 @@ impl FromStr for HitObject {
         let mut sample_info = SampleInfo::default();
         let kind = match obj_type {
             // hit circle
-            o if (o & (1 << 0)) == 0 => {
+            o if (o & (1 << 0)) != 0 => {
                 if let Some(s) = parts.get(5) {
                     if !s.is_empty() {
                         sample_info = SampleInfo::from_str(s)?;
@@ -224,7 +224,7 @@ impl FromStr for HitObject {
             }
 
             //slider
-            o if (o & (1 << 1)) == 0 => {
+            o if (o & (1 << 1)) != 0 => {
                 let mut ctl_parts = parts[5].split('|').collect::<Vec<_>>();
                 let num_repeats = parts[6].parse::<u32>()?;
                 let slider_type = ctl_parts.remove(0);
@@ -290,7 +290,7 @@ impl FromStr for HitObject {
             }
 
             // spinner
-            o if (o & (1 << 3)) == 0 => {
+            o if (o & (1 << 3)) != 0 => {
                 let end_time = parts[5].parse::<i32>()?;
                 if let Some(s) = parts.get(6) {
                     if !s.is_empty() {
@@ -303,7 +303,7 @@ impl FromStr for HitObject {
             }
 
             // mania hold
-            o if (o & (1 << 7)) == 0 => {
+            o if (o & (1 << 7)) != 0 => {
                 let last_parts = parts[5].split(':').collect::<Vec<_>>();
                 let end_time = last_parts[0].parse::<i32>()?;
                 if let Some(s) = last_parts.get(1..) {

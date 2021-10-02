@@ -73,6 +73,14 @@ pub struct SpinnerInfo {
     pub end_time: Millis,
 }
 
+/// Extra information provided by a mania hold.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+pub struct HoldInfo {
+    /// The time at which the hold ends.
+    pub end_time: Millis,
+}
+
 /// Distinguishes between different types of hit objects.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
@@ -85,6 +93,9 @@ pub enum HitObjectKind {
 
     /// Spinner.
     Spinner(SpinnerInfo),
+
+    /// Mania Hold.
+    Hold(HoldInfo),
 }
 
 impl HitObjectKind {
@@ -101,6 +112,11 @@ impl HitObjectKind {
     /// Is the given HitObject a spinner?
     pub fn is_spinner(&self) -> bool {
         matches!(self, HitObjectKind::Spinner(_))
+    }
+
+    /// Is the given HitObject a hold?
+    pub fn is_hold(&self) -> bool {
+        matches!(self, HitObjectKind::Hold(_))
     }
 }
 
@@ -198,7 +214,7 @@ impl FromStr for HitObject {
         let mut sample_info = SampleInfo::default();
         let kind = match obj_type {
             // hit circle
-            o if (o & 1) == 1 => {
+            o if (o & (1 << 0)) == 0 => {
                 if let Some(s) = parts.get(5) {
                     if !s.is_empty() {
                         sample_info = SampleInfo::from_str(s)?;
@@ -208,7 +224,7 @@ impl FromStr for HitObject {
             }
 
             //slider
-            o if (o & 2) == 2 => {
+            o if (o & (1 << 1)) == 0 => {
                 let mut ctl_parts = parts[5].split('|').collect::<Vec<_>>();
                 let num_repeats = parts[6].parse::<u32>()?;
                 let slider_type = ctl_parts.remove(0);
@@ -274,7 +290,7 @@ impl FromStr for HitObject {
             }
 
             // spinner
-            o if (o & 8) == 8 => {
+            o if (o & (1 << 3)) == 0 => {
                 let end_time = parts[5].parse::<i32>()?;
                 if let Some(s) = parts.get(6) {
                     if !s.is_empty() {
@@ -282,6 +298,21 @@ impl FromStr for HitObject {
                     }
                 }
                 HitObjectKind::Spinner(SpinnerInfo {
+                    end_time: Millis(end_time),
+                })
+            }
+
+            // mania hold
+            o if (o & (1 << 7)) == 0 => {
+                let last_parts = parts[5].split(':').collect::<Vec<_>>();
+                let end_time = last_parts[0].parse::<i32>()?;
+                if let Some(s) = last_parts.get(1..) {
+                    let s = s.join(":");
+                    if !s.is_empty() {
+                        sample_info = SampleInfo::from_str(&s)?;
+                    }
+                }
+                HitObjectKind::Hold(HoldInfo {
                     end_time: Millis(end_time),
                 })
             }
@@ -310,10 +341,11 @@ impl fmt::Display for HitObject {
 
         // object type
         let obj_type = match self.kind {
-            HitObjectKind::Circle => 1,
-            HitObjectKind::Slider { .. } => 2,
-            HitObjectKind::Spinner { .. } => 8,
-        } | if self.new_combo { 4 } else { 0 }
+            HitObjectKind::Circle => 1 << 0,
+            HitObjectKind::Slider { .. } => 1 << 1,
+            HitObjectKind::Spinner { .. } => 1 << 3,
+            HitObjectKind::Hold { .. } => 1 << 7,
+        } | if self.new_combo { 1 << 2 } else { 0 }
             | self.skip_color;
         write!(f, ",{}", obj_type)?;
 
@@ -352,6 +384,10 @@ impl fmt::Display for HitObject {
             }
 
             HitObjectKind::Spinner(info) => {
+                write!(f, ",{}", info.end_time.0)?;
+            }
+
+            HitObjectKind::Hold(info) => {
                 write!(f, ",{}", info.end_time.0)?;
             }
         }

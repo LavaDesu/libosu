@@ -1,5 +1,5 @@
 use crate::beatmap::Beatmap;
-use crate::hitobject::{HitObject, HitObjectKind, SpinnerInfo};
+use crate::hitobject::{HitObject, HitObjectKind, HoldInfo, SpinnerInfo};
 use crate::timing::{
     InheritedTimingInfo, Millis, TimingPoint, TimingPointKind, UninheritedTimingInfo,
 };
@@ -15,6 +15,12 @@ impl Beatmap {
             let sl = match &obj.kind {
                 // trivial case of circle or spinner
                 HitObjectKind::Circle | HitObjectKind::Spinner(_) => {
+                    res += 1;
+                    continue;
+                }
+                // XXX
+                // TODO
+                HitObjectKind::Hold(_) => {
                     res += 1;
                     continue;
                 }
@@ -55,6 +61,7 @@ impl Beatmap {
                 Some(ho.start_time.as_seconds() + duration)
             }
             HitObjectKind::Spinner(SpinnerInfo { end_time }) => Some(end_time.as_seconds()),
+            HitObjectKind::Hold(HoldInfo { end_time }) => Some(end_time.as_seconds()),
         }
     }
 

@@ -1,5 +1,5 @@
 use crate::beatmap::Beatmap;
-use crate::hitobject::{HitObject, HitObjectKind, SpinnerInfo};
+use crate::hitobject::{HitObject, HitObjectKind, HoldInfo, SpinnerInfo};
 use crate::timing::{
     InheritedTimingInfo, Millis, TimingPoint, TimingPointKind, UninheritedTimingInfo,
 };
@@ -12,6 +12,11 @@ impl Beatmap {
         let mut mpb = 0.0;
         let mut sv = 0.0;
         for (i, (obj, tp)) in self.double_iter().enumerate() {
+            match &tp.kind {
+                TimingPointKind::Inherited(tp) => sv = tp.slider_velocity,
+                TimingPointKind::Uninherited(tp) => mpb = tp.mpb,
+            };
+
             let sl = match &obj.kind {
                 // trivial case of circle or spinner
                 HitObjectKind::Circle | HitObjectKind::Spinner(_) => {
@@ -19,12 +24,15 @@ impl Beatmap {
                     continue;
                 }
                 HitObjectKind::Slider(v) => v,
+                HitObjectKind::Hold(v) => {
+                    let tick_spacing = mpb / self.difficulty.slider_tick_rate;
+                    let length = v.end_time - tp.time;
+                    let ticks = length as u32 / tick_spacing as u32;
+                    res += ticks;
+                    continue;
+                }
             };
 
-            match &tp.kind {
-                TimingPointKind::Inherited(tp) => sv = tp.slider_velocity,
-                TimingPointKind::Uninherited(tp) => mpb = tp.mpb,
-            };
             let slider_multiplier = self.difficulty.slider_multiplier;
             let pixels_per_beat = slider_multiplier * 100.0 * sv;
 
@@ -55,6 +63,7 @@ impl Beatmap {
                 Some(ho.start_time.as_seconds() + duration)
             }
             HitObjectKind::Spinner(SpinnerInfo { end_time }) => Some(end_time.as_seconds()),
+            HitObjectKind::Hold(HoldInfo { end_time }) => Some(end_time.as_seconds()),
         }
     }
 

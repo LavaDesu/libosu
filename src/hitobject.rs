@@ -211,15 +211,13 @@ impl FromStr for HitObject {
         let skip_color = (obj_type >> 4) & 0b111;
 
         let new_combo = (obj_type & 4) == 4;
-        let sample_info;
+        let mut sample_info = SampleInfo::default();
         let kind = match obj_type {
             // hit circle
             o if (o & (1 << 0)) == 0 => {
-                sample_info = if let Some(s) = parts.get(5) {
-                    SampleInfo::from_str(s)?
-                } else {
-                    SampleInfo::default()
-                };
+                if let Some(s) = parts.get(5) {
+                    sample_info = SampleInfo::from_str(s)?
+                }
                 HitObjectKind::Circle
             }
 
@@ -263,11 +261,9 @@ impl FromStr for HitObject {
                     vec![(SampleSet::None, SampleSet::None)]
                 };
 
-                sample_info = if parts.len() > 10 {
-                    SampleInfo::from_str(parts[10])?
-                } else {
-                    SampleInfo::default()
-                };
+                if parts.len() > 10 {
+                    sample_info = SampleInfo::from_str(parts[10])?;
+                }
 
                 HitObjectKind::Slider(SliderInfo {
                     num_repeats,
@@ -294,11 +290,9 @@ impl FromStr for HitObject {
             // spinner
             o if (o & (1 << 3)) == 0 => {
                 let end_time = parts[5].parse::<i32>()?;
-                sample_info = if let Some(s) = parts.get(6) {
-                    SampleInfo::from_str(s)?
-                } else {
-                    SampleInfo::default()
-                };
+                if let Some(s) = parts.get(6) {
+                    sample_info = SampleInfo::from_str(s)?;
+                }
                 HitObjectKind::Spinner(SpinnerInfo {
                     end_time: Millis(end_time),
                 })
